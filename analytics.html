@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GA4 Analytics</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-3D986D7J5W"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-3D986D7J5W');
+    </script>
+</head>
+<body>
+    <h1>Google Analytics Domain</h1>
+    <h2>Malaysia Air Quality</h2>
+    <p id="status">Loading..</p>
+    <pre id="out"></pre>
+    <script>
+        async function loadAQ() {
+        const status = document.getElementById("status");
+        const out = document.getElementById("out");
+
+        try {
+            status.textContent = "Fetching latest…";
+            const res = await fetch("http://127.0.0.1:8000/api/air");
+            const data = await res.json();
+
+            out.textContent = JSON.stringify(data, null, 2);
+            status.textContent = `OK — ${data.count} stations`;
+
+            // Optional GA4 event (tracks user refresh, not the whole dataset)
+            if (typeof gtag === "function") {
+            gtag("event", "aq_dashboard_refresh", { station_count: data.count });
+            }
+        } catch (e) {
+            status.textContent = "Error: is FastAPI running on port 8000?";
+            console.error(e);
+        }
+        }
+
+        loadAQ();
+        setInterval(loadAQ, 60000); // every 60s
+    </script>
+</body>
+</html>
